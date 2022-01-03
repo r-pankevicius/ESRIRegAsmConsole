@@ -12,4 +12,47 @@ TBD: arguments use by this program:
 /s - enforce
 /e - enforce
 
-## ...
+## Output examples of the new console
+
+### Success
+```
+
+**********************************
+
+
+ESRIRegAsm::Register
+  Command line: C:\folder1\folder2\folder2\myextension.dll /p:Desktop /s /e
+
+  Registry Capture On.
+  Registering native library...
+  Registry Capture Off.
+  Processing Registry Entries...
+  No categories to register.
+
+Operation Succeeded
+
+**********************************
+
+Press Enter to continue...
+```
+
+### Error
+```
+
+**********************************
+
+
+ESRIRegAsm::Register
+  Command line: C:\Windows\notepad.exe /p:Desktop /s /e
+
+  ERROR: LoadLibrary failed with specified path.
+
+Operation Failed
+00D3F308
+
+**********************************
+
+Press Enter to continue...
+```
+
+

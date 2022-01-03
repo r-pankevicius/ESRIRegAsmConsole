@@ -1,20 +1,17 @@
-﻿using System;
+﻿using SlavaGu.ConsoleAppLauncher;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SlavaGu.ConsoleAppLauncher;
 
 namespace ESRIRegAsmConsole
 {
 	internal class Program
-    {
+	{
 		private const string CommonProgramFileEnvVar = "CommonProgramFiles(x86)";
 		private const string RegAsmSubPath = @"ArcGIS\bin\ESRIRegAsm.exe";
 
 		private static int Main(string[] args)
-        {
+		{
 			var foregroundColor = Console.ForegroundColor;
 
 			string commonProgramFilesDir = Environment.GetEnvironmentVariable(CommonProgramFileEnvVar);
@@ -39,38 +36,48 @@ namespace ESRIRegAsmConsole
 
 			// just proof of concept...
 			var outputLines = new List<string>();
-			var consoleApp = new ConsoleApp(pathToRegAsm, @"C:\ddddddddddddddkskskskks.dll /p:Desktop /s /e");
+			//string pathToDll = @"nonexisting dll";
+			string pathToDll = @"C:\Windows\notepad.exe";
+			var consoleApp = new ConsoleApp(pathToRegAsm, $"{pathToDll} /p:Desktop /s /e");
 			bool capturedOperationSucceededOutput = false;
 			consoleApp.ConsoleOutput += (sender, arguments) =>
 			{
-				outputLines.Add(arguments.Line);
-				if (arguments.Line.StartsWith("Operation Succeeded"))
-					capturedOperationSucceededOutput = true;
+				var consoleAppSender = (IConsoleApp)sender; // fail fast if ConsoleAppLauncher implementation has changed
+
 				Console.WriteLine(arguments.Line);
-				if (arguments.Line == "Press Enter to continue...")
-					throw new Exception(); // doesn't work
+
+				outputLines.Add(arguments.Line);
+
+				if (arguments.Line.StartsWith("Operation Succeeded"))
+				{
+					capturedOperationSucceededOutput = true;
+				}
+				else if (arguments.Line == "Press Enter to continue...")
+				{
+					consoleAppSender.Stop();
+				}
 			};
 
 			consoleApp.Run();
 
-			bool programFinished = consoleApp.WaitForExit(10000);
+			bool programFinished = consoleApp.WaitForExit(2000);
 			if (!programFinished)
 			{
-				consoleApp.Stop();
+				consoleApp.WaitForExit(500);
 			}
 
 			if (capturedOperationSucceededOutput)
 			{
 				Console.ForegroundColor = ConsoleColor.Green;
-				Console.WriteLine("Looks like a success");
+				Console.WriteLine("Looks like a success, ERRORLEVEL will be 0");
 				Console.ForegroundColor = foregroundColor;
 				return 0;
 			}
 
 			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Looks like an error");
+			Console.WriteLine("Looks like an error, ERRORLEVEL will be 100");
 			Console.ForegroundColor = foregroundColor;
 			return 100;
-        }
-    }
+		}
+	}
 }
