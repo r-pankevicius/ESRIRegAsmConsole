@@ -40,6 +40,8 @@ namespace ESRIRegAsmConsole
 			string pathToDll = @"C:\Windows\notepad.exe";
 			var consoleApp = new ConsoleApp(pathToRegAsm, $"{pathToDll} /p:Desktop /s /e");
 			bool capturedOperationSucceededOutput = false;
+			bool capturedPressEnterToContinue = false;
+
 			consoleApp.ConsoleOutput += (sender, arguments) =>
 			{
 				var consoleAppSender = (IConsoleApp)sender; // fail fast if ConsoleAppLauncher implementation has changed
@@ -54,7 +56,9 @@ namespace ESRIRegAsmConsole
 				}
 				else if (arguments.Line == "Press Enter to continue...")
 				{
-					consoleAppSender.Stop();
+					// consoleAppSender.Stop(); // kills Windows PowerShell ISE, Windows PowerShell works OK
+					// consoleAppSender.Write("\r"); // simulate ENTER key press
+					capturedPressEnterToContinue = true;
 				}
 			};
 
@@ -63,7 +67,14 @@ namespace ESRIRegAsmConsole
 			bool programFinished = consoleApp.WaitForExit(2000);
 			if (!programFinished)
 			{
-				consoleApp.WaitForExit(500);
+				if (capturedOperationSucceededOutput || capturedPressEnterToContinue)
+				{
+					consoleApp.Stop();
+				}
+				else
+				{
+					consoleApp.WaitForExit(500);
+				}
 			}
 
 			if (capturedOperationSucceededOutput)
