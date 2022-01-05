@@ -12,26 +12,31 @@ namespace ESRIRegAsmConsole
 
 		private static int Main(string[] args)
 		{
+			if (args.Length < 1)
+			{
+				return InvalidArguments();
+			}
+
 			var foregroundColor = Console.ForegroundColor;
 
 			string commonProgramFilesDir = Environment.GetEnvironmentVariable(CommonProgramFileEnvVar);
 			if (commonProgramFilesDir is null)
 			{
 				Console.WriteLine($"Environment variable {CommonProgramFileEnvVar} was not set.");
-				return 1;
+				return 11;
 			}
 
 			if (!Directory.Exists(commonProgramFilesDir))
 			{
 				Console.WriteLine($"Directory {CommonProgramFileEnvVar} doesn't exist.");
-				return 2;
+				return 12;
 			}
 
 			string pathToRegAsm = Path.Combine(commonProgramFilesDir, RegAsmSubPath);
 			if (!File.Exists(pathToRegAsm))
 			{
 				Console.WriteLine($"File {pathToRegAsm} doesn't exist.");
-				return 3;
+				return 13;
 			}
 
 			// just proof of concept...
@@ -79,16 +84,67 @@ namespace ESRIRegAsmConsole
 
 			if (capturedOperationSucceededOutput)
 			{
-				Console.ForegroundColor = ConsoleColor.Green;
-				Console.WriteLine("Looks like a success, ERRORLEVEL will be 0");
-				Console.ForegroundColor = foregroundColor;
+				SuccessForeColor.WriteLine("Looks like a success, ERRORLEVEL will be 0");
 				return 0;
 			}
 
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Looks like an error, ERRORLEVEL will be 100");
-			Console.ForegroundColor = foregroundColor;
+			ErrorForeColor.WriteLine("Looks like an error, ERRORLEVEL will be 100");
 			return 100;
 		}
+
+		private static int InvalidArguments()
+		{
+			ErrorForeColor.WriteLine("Incorrect program arguments.");
+			PrintUsage();
+			return 1;
+		}
+
+		private static void PrintUsage()
+		{
+			string pathToEmbeddedRes = string.Concat(typeof(Program).Namespace, ".Embedded.Usage.txt");
+			using Stream resourceStream = typeof(Program).Assembly.GetManifestResourceStream(pathToEmbeddedRes);
+			var reader = new StreamReader(resourceStream);
+			string usageText = reader.ReadToEnd();
+			Console.Write(usageText);
+		}
+
+		#region Private classes
+
+		private abstract class ForeColor : IDisposable
+		{
+			private readonly ConsoleColor m_PreviousForegroundColor;
+
+			public ForeColor(ConsoleColor foregroundColor)
+			{
+				m_PreviousForegroundColor = Console.ForegroundColor;
+				Console.ForegroundColor = foregroundColor;
+			}
+
+			public void Dispose() => Console.ForegroundColor = m_PreviousForegroundColor;
+		}
+
+		private class SuccessForeColor : ForeColor
+		{
+			public SuccessForeColor() : base(ConsoleColor.Green) { }
+
+			public static void WriteLine(string line)
+			{
+				using (new ErrorForeColor())
+					Console.WriteLine(line);
+			}
+		}
+
+		private class ErrorForeColor : ForeColor
+		{
+			public ErrorForeColor() : base(ConsoleColor.Red) { }
+
+			public static void WriteLine(string line)
+			{
+				using (new ErrorForeColor())
+					Console.WriteLine(line);
+			}
+		}
+
+		#endregion
 	}
 }
