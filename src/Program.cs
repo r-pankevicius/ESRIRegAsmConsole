@@ -12,7 +12,8 @@ namespace ESRIRegAsmConsole
 
 		private static int Main(string[] args)
 		{
-			if (args.Length < 1)
+			var arguments = ArgumentsParser.Parse(args);
+			if (arguments is null)
 			{
 				return InvalidArguments();
 			}
@@ -62,7 +63,6 @@ namespace ESRIRegAsmConsole
 				else if (arguments.Line == "Press Enter to continue...")
 				{
 					// consoleAppSender.Stop(); // kills Windows PowerShell ISE, Windows PowerShell works OK
-					// consoleAppSender.Write("\r"); // simulate ENTER key press
 					capturedPressEnterToContinue = true;
 				}
 			};
