@@ -84,17 +84,17 @@ namespace ESRIRegAsmConsole
 
 			if (capturedOperationSucceededOutput)
 			{
-				SuccessForeColor.WriteLine("Looks like a success, ERRORLEVEL will be 0");
+				Logger.Success("Looks like a success, ERRORLEVEL will be 0");
 				return 0;
 			}
 
-			ErrorForeColor.WriteLine("Looks like an error, ERRORLEVEL will be 100");
+			Logger.Error("Looks like an error, ERRORLEVEL will be 100");
 			return 100;
 		}
 
 		private static int InvalidArguments()
 		{
-			ErrorForeColor.WriteLine("Incorrect program arguments.");
+			Logger.Error("Incorrect program arguments.");
 			PrintUsage();
 			return 1;
 		}
@@ -107,44 +107,5 @@ namespace ESRIRegAsmConsole
 			string usageText = reader.ReadToEnd();
 			Console.Write(usageText);
 		}
-
-		#region Private classes
-
-		private abstract class ForeColor : IDisposable
-		{
-			private readonly ConsoleColor m_PreviousForegroundColor;
-
-			public ForeColor(ConsoleColor foregroundColor)
-			{
-				m_PreviousForegroundColor = Console.ForegroundColor;
-				Console.ForegroundColor = foregroundColor;
-			}
-
-			public void Dispose() => Console.ForegroundColor = m_PreviousForegroundColor;
-		}
-
-		private class SuccessForeColor : ForeColor
-		{
-			public SuccessForeColor() : base(ConsoleColor.Green) { }
-
-			public static void WriteLine(string line)
-			{
-				using (new ErrorForeColor())
-					Console.WriteLine(line);
-			}
-		}
-
-		private class ErrorForeColor : ForeColor
-		{
-			public ErrorForeColor() : base(ConsoleColor.Red) { }
-
-			public static void WriteLine(string line)
-			{
-				using (new ErrorForeColor())
-					Console.WriteLine(line);
-			}
-		}
-
-		#endregion
 	}
 }
