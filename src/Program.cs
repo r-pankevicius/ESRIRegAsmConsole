@@ -40,10 +40,8 @@ namespace ESRIRegAsmConsole
 				return 13;
 			}
 
-			// just proof of concept...
 			var outputLines = new List<string>();
-			//string pathToDll = @"nonexisting dll";
-			string pathToDll = @"C:\Windows\notepad.exe";
+			string pathToDll = arguments.PathToDllOrListingFile;
 			var consoleApp = new ConsoleApp(pathToRegAsm, $"{pathToDll} /p:Desktop /s /e");
 			bool capturedOperationSucceededOutput = false;
 			bool capturedPressEnterToContinue = false;

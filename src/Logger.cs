@@ -23,6 +23,12 @@ namespace ESRIRegAsmConsole
 			Console.WriteLine(message);
 		}
 
+		public static void Warning(string message)
+		{
+			using var _ = new WarningForeColor();
+			Console.WriteLine(message);
+		}
+
 		#region Private classes
 
 		private abstract class ForeColor : IDisposable
@@ -56,6 +62,17 @@ namespace ESRIRegAsmConsole
 			public static void WriteLine(string line)
 			{
 				using (new ErrorForeColor())
+					Console.WriteLine(line);
+			}
+		}
+
+		private class WarningForeColor : ForeColor
+		{
+			public WarningForeColor() : base(ConsoleColor.Yellow) { }
+
+			public static void WriteLine(string line)
+			{
+				using (new WarningForeColor())
 					Console.WriteLine(line);
 			}
 		}

@@ -1,7 +1,7 @@
 ﻿Usage:
 	ESRIRegAsmConsole.exe <assembly name> /p:<product name> [switches]
 	or
-	ESRIRegAsmConsole.exe /list:listing.txt /p:<product name> [switches]
+	ESRIRegAsmConsole.exe /list:<listing.txt> /p:<product name> [switches]
 
 Switches:
 	/r :                        Register assembly (-ies) (default)

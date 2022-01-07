@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 
 namespace ESRIRegAsmConsole
 {
@@ -14,8 +13,37 @@ namespace ESRIRegAsmConsole
 			if (args is null)
 				throw new ArgumentNullException(nameof(args));
 
-			Arguments result = new();
+			if (args.Length !=1)
+			{
+				Logger.Warning("TODO: now only 1 DLL argument is supported and action is registed for desktop.");
+				return null;
+			}
 
+			string pathToFile = args[0];
+
+			if (!File.Exists(pathToFile))
+			{
+				Logger.Error($"File `{pathToFile}` doesn't exist.");
+				return null;
+			}
+
+			// I don't know if ESRIRegAsm now supports relative path, but just in case, expand it to absolude path
+			pathToFile = Path.GetFullPath(pathToFile);
+
+			string fileExtension = Path.GetExtension(pathToFile).ToLower();
+			if (fileExtension != ".dll")
+			{
+				Logger.Warning($"Fle extension `{fileExtension}` doesn't look like DLL, are you sure you want to register it?..");
+			}
+
+			return new Arguments
+			{
+				PathToDllOrListingFile = pathToFile
+			};
+
+			/*
+			Arguments result = new();
+			 
 			if (args.Length >= 2)
 			{
 				// Check 1st argument : <assembly name> || /list:listing.txt
@@ -47,6 +75,7 @@ namespace ESRIRegAsmConsole
 			}
 
 			return result;
+			*/
 		}
 	}
 }
