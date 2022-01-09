@@ -42,10 +42,10 @@ namespace ESRIRegAsmConsole
 
 			var outputLines = new List<string>();
 			string pathToDll = arguments.PathToDllOrListingFile;
-			var consoleApp = new ConsoleApp(pathToRegAsm, $"{pathToDll} /p:Desktop /s /e");
 			bool capturedOperationSucceededOutput = false;
 			bool capturedPressEnterToContinue = false;
 
+			using var consoleApp = new ConsoleApp(pathToRegAsm, $"{pathToDll} /p:Desktop /s /e");
 			consoleApp.ConsoleOutput += (sender, arguments) =>
 			{
 				var consoleAppSender = (IConsoleApp)sender; // fail fast if ConsoleAppLauncher implementation has changed
