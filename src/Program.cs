@@ -18,25 +18,32 @@ namespace ESRIRegAsmConsole
 				return InvalidArguments();
 			}
 
+			// TODO
+			if (!arguments.IsDll)
+			{
+				Logger.Error("/list argument isn't supported yet...");
+				return 1;
+			}
+
 			var foregroundColor = Console.ForegroundColor;
 
 			string commonProgramFilesDir = Environment.GetEnvironmentVariable(CommonProgramFileEnvVar);
 			if (commonProgramFilesDir is null)
 			{
-				Console.WriteLine($"Environment variable {CommonProgramFileEnvVar} was not set.");
+				Logger.Error($"Environment variable {CommonProgramFileEnvVar} was not set.");
 				return 11;
 			}
 
 			if (!Directory.Exists(commonProgramFilesDir))
 			{
-				Console.WriteLine($"Directory {CommonProgramFileEnvVar} doesn't exist.");
+				Logger.Error($"Directory {CommonProgramFileEnvVar} doesn't exist.");
 				return 12;
 			}
 
 			string pathToRegAsm = Path.Combine(commonProgramFilesDir, RegAsmSubPath);
 			if (!File.Exists(pathToRegAsm))
 			{
-				Console.WriteLine($"File {pathToRegAsm} doesn't exist.");
+				Logger.Error($"File {pathToRegAsm} doesn't exist.");
 				return 13;
 			}
 
@@ -60,7 +67,6 @@ namespace ESRIRegAsmConsole
 				}
 				else if (arguments.Line == "Press Enter to continue...")
 				{
-					// consoleAppSender.Stop(); // kills Windows PowerShell ISE, Windows PowerShell works OK
 					capturedPressEnterToContinue = true;
 				}
 			};
@@ -71,23 +77,12 @@ namespace ESRIRegAsmConsole
 			if (!programFinished)
 			{
 				if (capturedOperationSucceededOutput || capturedPressEnterToContinue)
-				{
 					consoleApp.Stop();
-				}
 				else
-				{
 					consoleApp.WaitForExit(500);
-				}
 			}
 
-			if (capturedOperationSucceededOutput)
-			{
-				Logger.Success("Looks like a success, ERRORLEVEL will be 0");
-				return 0;
-			}
-
-			Logger.Error("Looks like an error, ERRORLEVEL will be 100");
-			return 100;
+			return capturedOperationSucceededOutput ? 0 : 100;
 		}
 
 		private static int InvalidArguments()
@@ -101,7 +96,7 @@ namespace ESRIRegAsmConsole
 		{
 			string pathToEmbeddedRes = string.Concat(typeof(Program).Namespace, ".Embedded.Usage.txt");
 			using Stream resourceStream = typeof(Program).Assembly.GetManifestResourceStream(pathToEmbeddedRes);
-			var reader = new StreamReader(resourceStream);
+			using var reader = new StreamReader(resourceStream);
 			string usageText = reader.ReadToEnd();
 			Console.Write(usageText);
 		}

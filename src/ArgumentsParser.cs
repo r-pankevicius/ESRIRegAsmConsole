@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace ESRIRegAsmConsole
 {
@@ -13,13 +14,33 @@ namespace ESRIRegAsmConsole
 			if (args is null)
 				throw new ArgumentNullException(nameof(args));
 
-			if (args.Length !=1)
+			if (args.Length != 1)
 			{
-				Logger.Warning("TODO: now only 1 DLL argument is supported and action is registed for desktop.");
+				Logger.Warning("TODO: now only first DLL or list argument is supported; ... and action is `Register for desktop`.");
 				return null;
 			}
 
-			string pathToFile = args[0];
+			string pathToFile;
+			bool isDll;
+
+			string firstParam = args[0];
+			var listSwitch = Switch.TryParse(firstParam);
+			if (listSwitch is null)
+			{
+				pathToFile = firstParam;
+				isDll = true;
+			}
+			else
+			{
+				if (listSwitch.Value is null)
+				{
+					Logger.Error($"/list switch must have value.");
+					return null;
+				}
+
+				pathToFile = listSwitch.Value;
+				isDll = false;
+			}
 
 			if (!File.Exists(pathToFile))
 			{
@@ -30,52 +51,54 @@ namespace ESRIRegAsmConsole
 			// I don't know if ESRIRegAsm now supports relative path, but just in case, expand it to absolude path
 			pathToFile = Path.GetFullPath(pathToFile);
 
-			string fileExtension = Path.GetExtension(pathToFile).ToLower();
-			if (fileExtension != ".dll")
+			if (isDll)
 			{
-				Logger.Warning($"Fle extension `{fileExtension}` doesn't look like DLL, are you sure you want to register it?..");
+				string fileExtension = Path.GetExtension(pathToFile);
+				if (fileExtension.ToLower() != ".dll")
+					Logger.Warning($"File extension `{fileExtension}` doesn't look like DLL, are you sure you want to register/unregister it?..");
 			}
 
 			return new Arguments
 			{
-				PathToDllOrListingFile = pathToFile
+				PathToDllOrListingFile = pathToFile,
+				IsDll = isDll
 			};
+		}
 
-			/*
-			Arguments result = new();
-			 
-			if (args.Length >= 2)
+		/// <summary>
+		/// Switch in form /name or /name:value
+		/// </summary>
+		private class Switch
+		{
+			private static readonly char[] SplitArguments = new char[] { ':' };
+
+			public string Name { get; set; }
+
+			public string Value { get; set; }
+
+			public static Switch TryParse(string argument)
 			{
-				// Check 1st argument : <assembly name> || /list:listing.txt
-				string arg1 = args[0];
-				if (arg1.StartsWith("/list:"))
+				if (string.IsNullOrWhiteSpace(argument))
+					throw new ArgumentException(nameof(argument));
+
+				if (argument.Length < 2 || !argument.StartsWith("/"))
+					return null;
+
+				var result = new Switch();
+
+				int columnIdx = argument.IndexOf(':');
+				if (columnIdx == -1)
 				{
-					string[] parts = arg1.Split(':');
-					string listingPath = string.Join("", parts.Skip(1));
-					if (!File.Exists(listingPath))
-					{
-						//TBD: err
-						return null;
-					}
+					result.Name = argument.Substring(1);
 				}
 				else
 				{
-					if (!File.Exists(arg1))
-					{
-						//TBD: err
-						return null;
-					}
-
-					throw new NotImplementedException();					
+					result.Name = argument.Substring(1, columnIdx - 1);
+					result.Value = argument.Substring(columnIdx + 1);
 				}
-			}
-			else
-			{
-				return null;
-			}
 
-			return result;
-			*/
+				return result;
+			}
 		}
 	}
 }
