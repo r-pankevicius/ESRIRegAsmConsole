@@ -1,15 +1,19 @@
 ﻿Usage:
 	ESRIRegAsmConsole.exe <assembly name> /p:<product name> [switches]
-	or
+or
 	ESRIRegAsmConsole.exe /list:<listing.txt> /p:<product name> [switches]
 
 Switches:
-	/r :                        Register assembly (-ies) (default)
-	/u :                        Unregister assembly (-ies)
-	/regfile:[:fileName] :      Export to registry file
-	/f:<category file info> :   Category mapping file (.xml or .reg)
-	/w:<dirPath> :              Keep working files
-	/v :                        Verbose output
+	/r							Register assembly (-ies) (default)
+	/u							Unregister assembly (-ies)
+	/regfile:[:fileName]		Export to registry file
+	/f:<category file info>		Category mapping file (.xml or .reg)
+	/w:<dirPath>				Keep working files
+	/v							Verbose output
+
+Switches specific for /listing:<listing.txt> or if <assembly name> contains wildcards:
+	/basepath:<folder>			Resolve relative paths from <folder>
+	/continueonfail				Continue execution even if registration of some file fail
 
 Notes:
 	Both <assembly name> and listing.txt support glob syntax (* and ? wildcards).
