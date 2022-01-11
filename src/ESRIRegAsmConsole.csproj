@@ -49,6 +49,8 @@
   <ItemGroup>
     <Compile Include="Arguments.cs" />
     <Compile Include="ArgumentsParser.cs" />
+    <Compile Include="ConsoleAppLaunchArguments.cs" />
+    <Compile Include="EsriRegAsmArgumentBuilder.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

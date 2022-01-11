@@ -7,9 +7,6 @@ namespace ESRIRegAsmConsole
 {
 	internal class Program
 	{
-		private const string CommonProgramFileEnvVar = "CommonProgramFiles(x86)";
-		private const string RegAsmSubPath = @"ArcGIS\bin\ESRIRegAsm.exe";
-
 		private static int Main(string[] args)
 		{
 			var arguments = ArgumentsParser.Parse(args);
@@ -22,74 +19,72 @@ namespace ESRIRegAsmConsole
 			if (!arguments.IsDll)
 			{
 				Logger.Error("/list argument isn't supported yet...");
-				return 1;
+				return ErrorCode(9);
 			}
 
-			var foregroundColor = Console.ForegroundColor;
-
-			string commonProgramFilesDir = Environment.GetEnvironmentVariable(CommonProgramFileEnvVar);
-			if (commonProgramFilesDir is null)
+			var consoleAppArguments = EsriRegAsmArgumentBuilder.Build(arguments);
+			if (consoleAppArguments.ErrorCode != 0)
 			{
-				Logger.Error($"Environment variable {CommonProgramFileEnvVar} was not set.");
-				return 11;
+				return ErrorCode(consoleAppArguments.ErrorCode);
 			}
 
-			if (!Directory.Exists(commonProgramFilesDir))
+			foreach (var consoleAppArg in consoleAppArguments.ArgumentsList)
 			{
-				Logger.Error($"Directory {CommonProgramFileEnvVar} doesn't exist.");
-				return 12;
-			}
+				string pathToEsriRegAsmExe = consoleAppArg.ExecutableName;
+				string commandLine = consoleAppArg.CommandLineArguments;
 
-			string pathToRegAsm = Path.Combine(commonProgramFilesDir, RegAsmSubPath);
-			if (!File.Exists(pathToRegAsm))
-			{
-				Logger.Error($"File {pathToRegAsm} doesn't exist.");
-				return 13;
-			}
+				var outputLines = new List<string>();
+				bool capturedOperationSucceededOutput = false;
+				bool capturedPressEnterToContinue = false;
 
-			var outputLines = new List<string>();
-			string pathToDll = arguments.PathToDllOrListingFile;
-			bool capturedOperationSucceededOutput = false;
-			bool capturedPressEnterToContinue = false;
-
-			using var consoleApp = new ConsoleApp(pathToRegAsm, $"{pathToDll} /p:Desktop /s /e");
-			consoleApp.ConsoleOutput += (sender, arguments) =>
-			{
-				var consoleAppSender = (IConsoleApp)sender; // fail fast if ConsoleAppLauncher implementation has changed
+				using var consoleApp = new ConsoleApp(pathToEsriRegAsmExe, commandLine);
+				consoleApp.ConsoleOutput += (sender, arguments) =>
+				{
+					var consoleAppSender = (IConsoleApp)sender; // fail fast if ConsoleAppLauncher implementation has changed
 
 				Console.WriteLine(arguments.Line);
 
-				outputLines.Add(arguments.Line);
+					outputLines.Add(arguments.Line);
 
-				if (arguments.Line.StartsWith("Operation Succeeded"))
+					if (arguments.Line.StartsWith("Operation Succeeded"))
+					{
+						capturedOperationSucceededOutput = true;
+					}
+					else if (arguments.Line == "Press Enter to continue...")
+					{
+						capturedPressEnterToContinue = true;
+					}
+				};
+
+				consoleApp.Run();
+
+				bool programFinished = consoleApp.WaitForExit(2000);
+				if (!programFinished)
 				{
-					capturedOperationSucceededOutput = true;
+					if (capturedOperationSucceededOutput || capturedPressEnterToContinue)
+						consoleApp.Stop();
+					else
+						consoleApp.WaitForExit(500);
 				}
-				else if (arguments.Line == "Press Enter to continue...")
-				{
-					capturedPressEnterToContinue = true;
-				}
-			};
 
-			consoleApp.Run();
-
-			bool programFinished = consoleApp.WaitForExit(2000);
-			if (!programFinished)
-			{
-				if (capturedOperationSucceededOutput || capturedPressEnterToContinue)
-					consoleApp.Stop();
-				else
-					consoleApp.WaitForExit(500);
+				// TODO: only 1st arg is processed now
+				return capturedOperationSucceededOutput ? 0 : ErrorCode(100);
 			}
 
-			return capturedOperationSucceededOutput ? 0 : 100;
+			throw new NotImplementedException();
+		}
+
+		private static int ErrorCode(int errorCode)
+		{
+			Logger.Error($"Exiting with error code {errorCode}.");
+			return errorCode;
 		}
 
 		private static int InvalidArguments()
 		{
 			Logger.Error("Incorrect program arguments.");
 			PrintUsage();
-			return 1;
+			return ErrorCode(1);
 		}
 
 		private static void PrintUsage()
