@@ -5,6 +5,12 @@ VisualStudioVersion = 16.0.32002.261
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESRIRegAsmConsole", "ESRIRegAsmConsole.csproj", "{870F2EB7-0EC4-42BE-B2A5-969B2041349B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{F2BE50DD-C8E0-477E-B4C7-F55710825BDC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.Parser", "..\lib\lecode-official-command-line-parser\source\System.CommandLine.Parser.csproj", "{60196F1E-2112-4984-B7E6-E6A60EA4ABA0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.Parser.Tests", "..\lib\lecode-official-command-line-parser\test\System.CommandLine.Parser.Tests.csproj", "{86E3999B-3B85-4F48-A193-71B8D25ED7FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +21,21 @@ Global
 		{870F2EB7-0EC4-42BE-B2A5-969B2041349B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{870F2EB7-0EC4-42BE-B2A5-969B2041349B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{870F2EB7-0EC4-42BE-B2A5-969B2041349B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60196F1E-2112-4984-B7E6-E6A60EA4ABA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60196F1E-2112-4984-B7E6-E6A60EA4ABA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60196F1E-2112-4984-B7E6-E6A60EA4ABA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60196F1E-2112-4984-B7E6-E6A60EA4ABA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86E3999B-3B85-4F48-A193-71B8D25ED7FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86E3999B-3B85-4F48-A193-71B8D25ED7FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86E3999B-3B85-4F48-A193-71B8D25ED7FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86E3999B-3B85-4F48-A193-71B8D25ED7FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{60196F1E-2112-4984-B7E6-E6A60EA4ABA0} = {F2BE50DD-C8E0-477E-B4C7-F55710825BDC}
+		{86E3999B-3B85-4F48-A193-71B8D25ED7FA} = {F2BE50DD-C8E0-477E-B4C7-F55710825BDC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FDF4F6E4-E02F-42F8-9FCC-D3B41B60AAC3}

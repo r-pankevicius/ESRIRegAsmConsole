@@ -63,5 +63,11 @@
   <ItemGroup>
     <EmbeddedResource Include="Embedded\Usage.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\lib\lecode-official-command-line-parser\source\System.CommandLine.Parser.csproj">
+      <Project>{60196f1e-2112-4984-b7e6-e6a60ea4aba0}</Project>
+      <Name>System.CommandLine.Parser</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
