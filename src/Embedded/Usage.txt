@@ -17,7 +17,9 @@ Switches specific for /listing:<listing.txt> or if <assembly name> contains wild
     /continueonfail             Continue execution even if registration of some file fails
 
 Notes:
-    Both <assembly name> and listing.txt support glob syntax (* and ? wildcards).
+    Both <assembly name> and listing.txt support glob syntax (* and ? wildcards)
+	but only in file names, not in directories.
+	
     listing.txt can contain multiple assemblies, each placed in a separate line.
     It's a shortcut to calling ESRIRegAsmConsole.exe multiple times.
     listing.txt line starting with "hash" (`#`) it is treated like a comment.

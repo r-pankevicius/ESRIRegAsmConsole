@@ -52,7 +52,9 @@ namespace ESRIRegAsmConsole
 				throw new ArgumentNullException(nameof(arguments));
 
 			if (arguments.IsDll)
-				return new string[] { arguments.PathToAssemblyOrListingFile };
+			{
+				return GetListOfDlls(arguments.PathToAssemblyOrListingFile, arguments.BasePath);
+			}
 
 			if (!File.Exists(arguments.PathToAssemblyOrListingFile))
 			{
@@ -63,20 +65,18 @@ namespace ESRIRegAsmConsole
 			return GetListOfDllsFromListingFile(arguments.PathToAssemblyOrListingFile, arguments.BasePath);
 		}
 
-		private static IEnumerable<string> GetListOfDllsFromListingFile(string pathToFile, string basePath)
-		{
-			string correctBasePath = !string.IsNullOrEmpty(basePath) ? basePath : Path.GetDirectoryName(pathToFile);
+		private static IEnumerable<string> GetListOfDllsFromListingFile(string pathToFile, string basePath) =>
+			File.ReadLines(pathToFile)
+				.Where(line => !string.IsNullOrWhiteSpace(line) && !line.StartsWith("#"))
+				.SelectMany(line => GetListOfDlls(line, basePath));
 
-			foreach (string line in File.ReadLines(pathToFile))
-			{
-				if (!string.IsNullOrWhiteSpace(line) && !line.StartsWith("#"))
-				{
-					if (Path.IsPathRooted(line))
-						yield return Path.GetFullPath(line);
-					else
-						yield return Path.GetFullPath(Path.Combine(correctBasePath, line));
-				}
-			}
+		private static IEnumerable<string> GetListOfDlls(string filePath, string basePath)
+		{
+			string correctBasePath = !string.IsNullOrEmpty(basePath) ? basePath : Path.GetDirectoryName(filePath);
+
+			string fullPathPattern = Path.IsPathRooted(filePath) ? filePath : Path.Combine(correctBasePath, filePath);
+			foreach (string pathToDll in Wildcards.Expand(fullPathPattern))
+				yield return Path.GetFullPath(pathToDll);
 		}
 
 		private static Result ErrorCode(int errorCode) => new() { ErrorCode = errorCode };
