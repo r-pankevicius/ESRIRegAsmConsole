@@ -1,0 +1,3 @@
+[submodule "lib/lecode-official-command-line-parser"]
+	path = lib/lecode-official-command-line-parser
+	url = https://github.com/lecode-official/command-line-parser.git
