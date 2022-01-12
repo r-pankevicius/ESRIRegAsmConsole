@@ -91,7 +91,7 @@ namespace ESRIRegAsmConsole
 				return null;
 			}
 
-			result.Register = register;
+			result.Register = !unregister;
 
 
 			return result;

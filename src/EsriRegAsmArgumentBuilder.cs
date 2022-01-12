@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace ESRIRegAsmConsole
 {
@@ -13,9 +14,6 @@ namespace ESRIRegAsmConsole
 		{
 			if (arguments is null)
 				throw new ArgumentNullException(nameof(arguments));
-
-			if (!arguments.IsDll)
-				throw new NotImplementedException("/list switch is not implemented.");
 
 			string commonProgramFilesDir = Environment.GetEnvironmentVariable(CommonProgramFileEnvVar);
 			if (commonProgramFilesDir is null)
@@ -34,15 +32,51 @@ namespace ESRIRegAsmConsole
 			string registerUnregisterParam = arguments.Register ? "" : "/u";
 
 			var result = new Result();
-			result.ArgumentsList.Add(new ConsoleAppLaunchArguments
+
+			var allDlls = GetListOfDlls(arguments);
+			foreach (string dll in allDlls)
+			{
+				result.ArgumentsList.Add(new ConsoleAppLaunchArguments
 				{
 					ExecutableName = pathToRegAsm,
-					CommandLineArguments =
-						$"{arguments.PathToAssemblyOrListingFile} {registerUnregisterParam} /p:{arguments.Product} /s /e"
+					CommandLineArguments = $"{dll} {registerUnregisterParam} /p:{arguments.Product} /s /e"
 				});
-			//
+			}
 
 			return result;
+		}
+
+		private static IEnumerable<string> GetListOfDlls(Arguments arguments)
+		{
+			if (arguments is null)
+				throw new ArgumentNullException(nameof(arguments));
+
+			if (arguments.IsDll)
+				return new string[] { arguments.PathToAssemblyOrListingFile };
+
+			if (!File.Exists(arguments.PathToAssemblyOrListingFile))
+			{
+				Logger.Error($"File {arguments.PathToAssemblyOrListingFile} doesn't exist.");
+				return new string[0];
+			}
+
+			return GetListOfDllsFromListingFile(arguments.PathToAssemblyOrListingFile, arguments.BasePath);
+		}
+
+		private static IEnumerable<string> GetListOfDllsFromListingFile(string pathToFile, string basePath)
+		{
+			string correctBasePath = !string.IsNullOrEmpty(basePath) ? basePath : Path.GetDirectoryName(pathToFile);
+
+			foreach (string line in File.ReadLines(pathToFile))
+			{
+				if (!string.IsNullOrWhiteSpace(line) && !line.StartsWith("#"))
+				{
+					if (Path.IsPathRooted(line))
+						yield return Path.GetFullPath(line);
+					else
+						yield return Path.GetFullPath(Path.Combine(correctBasePath, line));
+				}
+			}
 		}
 
 		private static Result ErrorCode(int errorCode) => new() { ErrorCode = errorCode };

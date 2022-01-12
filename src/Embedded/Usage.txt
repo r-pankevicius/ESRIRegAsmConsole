@@ -20,7 +20,7 @@ Notes:
     Both <assembly name> and listing.txt support glob syntax (* and ? wildcards).
     listing.txt can contain multiple assemblies, each placed in a separate line.
     It's a shortcut to calling ESRIRegAsmConsole.exe multiple times.
-    listing.txt line starting with "hash space" (`# `) is treated like a comment.
+    listing.txt line starting with "hash" (`#`) it is treated like a comment.
 
 Examples:
     TBD

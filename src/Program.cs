@@ -21,6 +21,8 @@ namespace ESRIRegAsmConsole
 				return ErrorCode(consoleAppArguments.ErrorCode);
 			}
 
+			bool errorsOccured = false;
+
 			foreach (var consoleAppArg in consoleAppArguments.ArgumentsList)
 			{
 				string pathToEsriRegAsmExe = consoleAppArg.ExecutableName;
@@ -60,11 +62,15 @@ namespace ESRIRegAsmConsole
 						consoleApp.WaitForExit(500);
 				}
 
-				// TODO: only 1st arg is processed now
-				return capturedOperationSucceededOutput ? 0 : ErrorCode(100);
+				if (!capturedOperationSucceededOutput)
+				{
+					errorsOccured = true;
+					if (!arguments.ContinueOnFail)
+						break;
+				}
 			}
 
-			throw new NotImplementedException();
+			return errorsOccured ? ErrorCode(100) : 0;
 		}
 
 		private static int ErrorCode(int errorCode)
