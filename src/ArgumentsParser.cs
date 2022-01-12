@@ -14,17 +14,14 @@ namespace ESRIRegAsmConsole
 			if (args is null)
 				throw new ArgumentNullException(nameof(args));
 
-			if (args.Length != 1)
-			{
-				Logger.Warning("TODO: now only first DLL or list argument is supported; ... and action is `Register for desktop`.");
+			if (args.Length < 1)
 				return null;
-			}
 
 			string pathToFile;
 			bool isDll;
 
 			string firstParam = args[0];
-			var listSwitch = Switch.TryParse(firstParam);
+			var listSwitch = Switch.Parse(firstParam);
 			if (listSwitch is null)
 			{
 				pathToFile = firstParam;
@@ -58,47 +55,13 @@ namespace ESRIRegAsmConsole
 					Logger.Warning($"File extension `{fileExtension}` doesn't look like DLL, are you sure you want to register/unregister it?..");
 			}
 
-			return new Arguments
+			var result = new Arguments
 			{
 				PathToDllOrListingFile = pathToFile,
 				IsDll = isDll
 			};
-		}
 
-		/// <summary>
-		/// Switch in form /name or /name:value
-		/// </summary>
-		private class Switch
-		{
-			private static readonly char[] SplitArguments = new char[] { ':' };
-
-			public string Name { get; set; }
-
-			public string Value { get; set; }
-
-			public static Switch TryParse(string argument)
-			{
-				if (string.IsNullOrWhiteSpace(argument))
-					throw new ArgumentException(nameof(argument));
-
-				if (argument.Length < 2 || !argument.StartsWith("/"))
-					return null;
-
-				var result = new Switch();
-
-				int columnIdx = argument.IndexOf(':');
-				if (columnIdx == -1)
-				{
-					result.Name = argument.Substring(1);
-				}
-				else
-				{
-					result.Name = argument.Substring(1, columnIdx - 1);
-					result.Value = argument.Substring(columnIdx + 1);
-				}
-
-				return result;
-			}
+			return result;
 		}
 	}
 }

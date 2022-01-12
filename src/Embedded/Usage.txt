@@ -13,7 +13,7 @@ Switches:
 
 Switches specific for /listing:<listing.txt> or if <assembly name> contains wildcards:
 	/basepath:<folder>			Resolve relative paths from <folder>
-	/continueonfail				Continue execution even if registration of some file fail
+	/continueonfail				Continue execution even if registration of some file fails
 
 Notes:
 	Both <assembly name> and listing.txt support glob syntax (* and ? wildcards).
