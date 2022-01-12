@@ -93,6 +93,7 @@ namespace ESRIRegAsmConsole
 
 			result.Register = !unregister;
 
+			result.ContinueOnFail = (bool)parsedArguments[nameof(Arguments.ContinueOnFail)];
 
 			return result;
 		}
