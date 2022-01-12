@@ -9,12 +9,12 @@ namespace ESRIRegAsmConsole
 		private const string CommonProgramFileEnvVar = "CommonProgramFiles(x86)";
 		private const string RegAsmSubPath = @"ArcGIS\bin\ESRIRegAsm.exe";
 
-		public static Result Build(Arguments programArguments)
+		public static Result Build(Arguments arguments)
 		{
-			if (programArguments is null)
-				throw new ArgumentNullException(nameof(programArguments));
+			if (arguments is null)
+				throw new ArgumentNullException(nameof(arguments));
 
-			if (!programArguments.IsDll)
+			if (!arguments.IsDll)
 				throw new NotImplementedException("/list switch is not implemented.");
 
 			string commonProgramFilesDir = Environment.GetEnvironmentVariable(CommonProgramFileEnvVar);
@@ -24,31 +24,28 @@ namespace ESRIRegAsmConsole
 				return ErrorCode(11);
 			}
 
-			if (!Directory.Exists(commonProgramFilesDir))
-			{
-				Logger.Error($"Directory {CommonProgramFileEnvVar} doesn't exist.");
-				return ErrorCode(12);
-			}
-
 			string pathToRegAsm = Path.Combine(commonProgramFilesDir, RegAsmSubPath);
 			if (!File.Exists(pathToRegAsm))
 			{
 				Logger.Error($"File {pathToRegAsm} doesn't exist.");
-				return ErrorCode(13);
+				return ErrorCode(12);
 			}
+
+			string registerUnregisterParam = arguments.Register ? "" : "/u";
 
 			var result = new Result();
 			result.ArgumentsList.Add(new ConsoleAppLaunchArguments
 				{
 					ExecutableName = pathToRegAsm,
-					CommandLineArguments = $"{programArguments.PathToDllOrListingFile} /p:Desktop /s /e"
+					CommandLineArguments =
+						$"{arguments.PathToAssemblyOrListingFile} {registerUnregisterParam} /p:{arguments.Product} /s /e"
 				});
 			//
 
 			return result;
 		}
 
-		private static Result ErrorCode(int errorCode) => new Result { ErrorCode = errorCode };
+		private static Result ErrorCode(int errorCode) => new() { ErrorCode = errorCode };
 
 		public class Result
 		{

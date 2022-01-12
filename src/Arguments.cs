@@ -17,10 +17,10 @@
 		/// <summary>
 		/// Required first argument: DLL or listing file.
 		/// </summary>
-		public string PathToDllOrListingFile { get; set; }
+		public string PathToAssemblyOrListingFile { get; set; }
 
 		/// <summary>
-		/// true: <see cref="PathToDllOrListingFile"/> is DLL otherwise: listing file.
+		/// true: <see cref="PathToAssemblyOrListingFile"/> is DLL otherwise: listing file.
 		/// </summary>
 		public bool IsDll { get; set; }
 
@@ -53,5 +53,15 @@
 		/// If the program output should be verbose.
 		/// </summary>
 		public bool VerboseOutput { get; set; } = false;
+
+		/// <summary>
+		/// Folder to resolve relative paths from.
+		/// </summary>
+		public string BasePath { get; set; }
+
+		/// <summary>
+		/// Continue execution even if registration of some file fails.
+		/// </summary>
+		public bool ContinueOnFail { get; set; } = false;
 	}
 }

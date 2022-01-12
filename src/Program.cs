@@ -1,7 +1,7 @@
-﻿using SlavaGu.ConsoleAppLauncher;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using SlavaGu.ConsoleAppLauncher;
 
 namespace ESRIRegAsmConsole
 {
@@ -13,13 +13,6 @@ namespace ESRIRegAsmConsole
 			if (arguments is null)
 			{
 				return InvalidArguments();
-			}
-
-			// TODO
-			if (!arguments.IsDll)
-			{
-				Logger.Error("/list argument isn't supported yet...");
-				return ErrorCode(9);
 			}
 
 			var consoleAppArguments = EsriRegAsmArgumentBuilder.Build(arguments);

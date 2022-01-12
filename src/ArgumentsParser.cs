@@ -1,5 +1,7 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
+using System.CommandLine;
+using System.Diagnostics;
 using System.Linq;
 
 namespace ESRIRegAsmConsole
@@ -11,55 +13,86 @@ namespace ESRIRegAsmConsole
 	{
 		public static Arguments Parse(string[] args)
 		{
-			if (args is null)
-				throw new ArgumentNullException(nameof(args));
+			Arguments result = null;
 
-			if (args.Length < 1)
-				return null;
+			var parsedArgs = ParseCommandLineArgs(args);
+			if (parsedArgs is not null)
+				result = ConvertParsedCommandLineArgs(parsedArgs);
 
-			string pathToFile;
-			bool isDll;
+			return result;
+		}
 
-			string firstParam = args[0];
-			var listSwitch = Switch.Parse(firstParam);
-			if (listSwitch is null)
+		private static IDictionary<string, object> ParseCommandLineArgs(string[] args)
+		{
+			var parser = new Parser(new ParserOptions { ArgumentPrefix = "/" });
+
+			// Parser doesn't support the notion of optional positional argument, so add one
+			// positional argument and process if it's DLL or /list switch later
+			parser
+				.AddPositionalArgument<string>(nameof(Arguments.PathToAssemblyOrListingFile))
+				// TODO: Func<T, T, T> duplicateResolutionPolicy to fail if both /p:Desktop and /p:Server is specified
+				.AddNamedArgument("p", "product-name", nameof(Arguments.Product), null, defaultValue: Product.Desktop)
+				.AddFlagArgument<bool>("r", "register", nameof(Arguments.Register), null)
+				.AddFlagArgument<bool>("u", "unregister", "Unregister", null)
+				.AddNamedArgument<string>("regfile", "export-to-registry-file", nameof(Arguments.ExportToRegistryFile), null)
+				.AddNamedArgument<string>("f", "category-mapping-file", nameof(Arguments.CategoryMappingFile), null)
+				.AddNamedArgument<string>("w", "keep-working-files", nameof(Arguments.KeepWorkingFilesDirectory), null)
+				.AddFlagArgument<bool>("v", "verbose", nameof(Arguments.VerboseOutput), null)
+				.AddNamedArgument<string>("basepath", "basepath", nameof(Arguments.BasePath), null)
+				.AddFlagArgument<bool>("continueonfail", "continueonfail", nameof(Arguments.ContinueOnFail), null);
+
+			ParsingResults parsingResults;
+
+			try
 			{
-				pathToFile = firstParam;
-				isDll = true;
-			}
-			else
-			{
-				if (listSwitch.Value is null)
+				string processName = Process.GetCurrentProcess().ProcessName;
+				string[] parserArgs = (new string[] { processName }).Concat(args).ToArray();
+				parsingResults = parser.Parse(parserArgs);
+				var firstArgument = (string)parsingResults.ParsedValues[nameof(Arguments.PathToAssemblyOrListingFile)];
+				if (firstArgument.StartsWith("/list:"))
 				{
-					Logger.Error($"/list switch must have value.");
-					return null;
+					var listSwitchParser = new Parser(new ParserOptions { ArgumentPrefix = "/" });
+					listSwitchParser.AddNamedArgument<string>("list", alias: null, "Listing", null);
+					var listSwitchParseResults = listSwitchParser.Parse(new string[] { processName, firstArgument });
+					parsingResults.ParsedValues[nameof(Arguments.PathToAssemblyOrListingFile)] =
+						listSwitchParseResults.GetParsedValue("Listing");
+					parsingResults.ParsedValues.Add(nameof(Arguments.IsDll), false);
 				}
-
-				pathToFile = listSwitch.Value;
-				isDll = false;
+				else
+				{
+					parsingResults.ParsedValues.Add(nameof(Arguments.IsDll), true);
+				}
 			}
-
-			if (!File.Exists(pathToFile))
+			catch (InvalidOperationException ex)
 			{
-				Logger.Error($"File `{pathToFile}` doesn't exist.");
+				Logger.Error(ex.Message);
 				return null;
 			}
 
-			// I don't know if ESRIRegAsm now supports relative path, but just in case, expand it to absolude path
-			pathToFile = Path.GetFullPath(pathToFile);
+			return parsingResults.ParsedValues;
+		}
 
-			if (isDll)
+		private static Arguments ConvertParsedCommandLineArgs(IDictionary<string, object> parsedArguments)
+		{
+			if (parsedArguments is null)
+				throw new ArgumentNullException(nameof(parsedArguments));
+
+			Arguments result = new()
 			{
-				string fileExtension = Path.GetExtension(pathToFile);
-				if (fileExtension.ToLower() != ".dll")
-					Logger.Warning($"File extension `{fileExtension}` doesn't look like DLL, are you sure you want to register/unregister it?..");
+				PathToAssemblyOrListingFile = (string)parsedArguments[nameof(Arguments.PathToAssemblyOrListingFile)],
+				IsDll = (bool)parsedArguments[nameof(Arguments.IsDll)]
+			};
+
+			bool register = (bool)parsedArguments[nameof(Arguments.Register)];
+			bool unregister = (bool)parsedArguments["Unregister"];
+			if (register && unregister)
+			{
+				Logger.Error("You can specify either /r or /u, not both.");
+				return null;
 			}
 
-			var result = new Arguments
-			{
-				PathToDllOrListingFile = pathToFile,
-				IsDll = isDll
-			};
+			result.Register = register;
+
 
 			return result;
 		}

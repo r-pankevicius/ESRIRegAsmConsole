@@ -1,25 +1,26 @@
 ﻿Usage:
-	ESRIRegAsmConsole.exe <assembly name> /p:<product name> [switches]
+    ESRIRegAsmConsole.exe <assembly name> [switches]
 or
-	ESRIRegAsmConsole.exe /list:<listing.txt> /p:<product name> [switches]
+    ESRIRegAsmConsole.exe /list:<listing.txt> [switches]
 
 Switches:
-	/r							Register assembly (-ies) (default)
-	/u							Unregister assembly (-ies)
-	/regfile:[:fileName]		Export to registry file
-	/f:<category file info>		Category mapping file (.xml or .reg)
-	/w:<dirPath>				Keep working files
-	/v							Verbose output
+    /p:[ProductName]            Product name: Desktop or Server
+    /r                          Register assembly (-ies) (default)
+    /u                          Unregister assembly (-ies)
+    /regfile:[fileName]         Export to registry file
+    /f:<category file info>     Category mapping file (.xml or .reg)
+    /w:<dirPath>                Keep working files
+    /v                          Verbose output
 
 Switches specific for /listing:<listing.txt> or if <assembly name> contains wildcards:
-	/basepath:<folder>			Resolve relative paths from <folder>
-	/continueonfail				Continue execution even if registration of some file fails
+    /basepath:<folder>          Resolve relative paths from <folder>
+    /continueonfail             Continue execution even if registration of some file fails
 
 Notes:
-	Both <assembly name> and listing.txt support glob syntax (* and ? wildcards).
-	listing.txt can contain multiple assemblies, each placed in a separate line.
-		It's a shortcut to calling ESRIRegAsmConsole.exe multiple times.
-	listing.txt line starting with "hash space" (`# `) is treated like a comment.
+    Both <assembly name> and listing.txt support glob syntax (* and ? wildcards).
+    listing.txt can contain multiple assemblies, each placed in a separate line.
+    It's a shortcut to calling ESRIRegAsmConsole.exe multiple times.
+    listing.txt line starting with "hash space" (`# `) is treated like a comment.
 
 Examples:
-	TBD
+    TBD
