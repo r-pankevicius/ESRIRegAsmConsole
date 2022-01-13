@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using SlavaGu.ConsoleAppLauncher;
 
 namespace ESRIRegAsmConsole
 {
 	internal class Program
 	{
+		/// <summary>
+		/// Number of executions to trigger printing of summary: what commands succeeded and which failed.
+		/// </summary>
+		private const int PrintSummaryThreshold = 3;
+
 		private static int Main(string[] args)
 		{
 			var arguments = ArgumentsParser.Parse(args);
@@ -21,25 +27,27 @@ namespace ESRIRegAsmConsole
 				return ErrorCode(consoleAppArguments.ErrorCode);
 			}
 
+			// To track which executed commands succeeded and failed
+			var commandLinesRan = new Dictionary<string, bool>();
 			bool errorsOccured = false;
 
 			foreach (var consoleAppArg in consoleAppArguments.ArgumentsList)
 			{
 				string pathToEsriRegAsmExe = consoleAppArg.ExecutableName;
-				string commandLine = consoleAppArg.CommandLineArguments;
+				string commandLineArguments = consoleAppArg.CommandLineArguments;
 
-				var outputLines = new List<string>();
 				bool capturedOperationSucceededOutput = false;
 				bool capturedPressEnterToContinue = false;
 
-				using var consoleApp = new ConsoleApp(pathToEsriRegAsmExe, commandLine);
+				string commandLine = $"{pathToEsriRegAsmExe} {commandLineArguments}";
+				Logger.Info($"Executing command:\n\t{commandLine}");
+
+				using var consoleApp = new ConsoleApp(pathToEsriRegAsmExe, commandLineArguments);
 				consoleApp.ConsoleOutput += (sender, arguments) =>
 				{
 					var consoleAppSender = (IConsoleApp)sender; // fail fast if ConsoleAppLauncher implementation has changed
-
-				Console.WriteLine(arguments.Line);
-
-					outputLines.Add(arguments.Line);
+					
+					Logger.Info(arguments.Line);
 
 					if (arguments.Line.StartsWith("Operation Succeeded"))
 					{
@@ -62,20 +70,60 @@ namespace ESRIRegAsmConsole
 						consoleApp.WaitForExit(500);
 				}
 
-				if (!capturedOperationSucceededOutput)
+				bool succeeded = capturedOperationSucceededOutput;
+				commandLinesRan[commandLine] = succeeded;
+
+				if (succeeded)
 				{
+					Logger.Success("Succeeded.");
+				}
+				else
+				{
+					Logger.Error("Failed.");
 					errorsOccured = true;
 					if (!arguments.ContinueOnFail)
 						break;
 				}
 			}
 
+			PrintSummaryIfNeeded(commandLinesRan);
+
 			return errorsOccured ? ErrorCode(100) : 0;
+		}
+
+		private static void PrintSummaryIfNeeded(Dictionary<string, bool> commandLinesRan)
+		{
+			if (commandLinesRan.Count < PrintSummaryThreshold)
+				return;
+
+			var succeededCommands = commandLinesRan.Where(kv => kv.Value).Select(kv => kv.Key).ToArray();
+			var failedCommands = commandLinesRan.Where(kv => !kv.Value).Select(kv => kv.Key).ToArray();
+
+			Logger.Info(
+				$"Execution summary:\n\tTotal: {commandLinesRan.Count}\n\tSucceeded: {succeededCommands.Length}\n\tFailed: {failedCommands.Length}\n");
+
+			if (succeededCommands.Length > 0)
+			{
+				Logger.Info($"=== Succeeded ({succeededCommands.Length}): ===");
+				foreach (string command in succeededCommands)
+					Logger.Success(command);
+			}
+
+			if (failedCommands.Length > 0)
+			{
+				Logger.Info($"\n=== Failed ({failedCommands.Length}): ===");
+				foreach (string command in failedCommands)
+					Logger.Error(command);
+			}
 		}
 
 		private static int ErrorCode(int errorCode)
 		{
-			Logger.Error($"Exiting with error code {errorCode}.");
+			if (errorCode != 0)
+				Logger.Error($"Exiting with error code {errorCode}.");
+			else
+				Logger.Success("Succeeded.");
+
 			return errorCode;
 		}
 
@@ -92,7 +140,7 @@ namespace ESRIRegAsmConsole
 			using Stream resourceStream = typeof(Program).Assembly.GetManifestResourceStream(pathToEmbeddedRes);
 			using var reader = new StreamReader(resourceStream);
 			string usageText = reader.ReadToEnd();
-			Console.Write(usageText);
+			Logger.Info(usageText);
 		}
 	}
 }

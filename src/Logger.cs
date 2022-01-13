@@ -11,6 +11,9 @@ namespace ESRIRegAsmConsole
 		private const ConsoleColor WarningColor = ConsoleColor.Yellow;
 		private const ConsoleColor ErrorColor = ConsoleColor.Red;
 
+		public static void Info(string message) =>
+			Console.WriteLine(message);
+
 		public static void Success(string message)
 		{
 			using var _ = new ForeColor(SuccessColor);

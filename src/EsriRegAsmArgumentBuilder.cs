@@ -72,10 +72,13 @@ namespace ESRIRegAsmConsole
 
 		private static IEnumerable<string> GetListOfDlls(string filePath, string basePath)
 		{
-			string correctBasePath = !string.IsNullOrEmpty(basePath) ? basePath : Path.GetDirectoryName(filePath);
+			string pathPattern = filePath;
+			if (!Path.IsPathRooted(filePath) && !string.IsNullOrEmpty(basePath))
+			{
+				pathPattern = Path.Combine(basePath, filePath);
+			}
 
-			string fullPathPattern = Path.IsPathRooted(filePath) ? filePath : Path.Combine(correctBasePath, filePath);
-			foreach (string pathToDll in Wildcards.Expand(fullPathPattern))
+			foreach (string pathToDll in Wildcards.Expand(pathPattern))
 				yield return Path.GetFullPath(pathToDll);
 		}
 
