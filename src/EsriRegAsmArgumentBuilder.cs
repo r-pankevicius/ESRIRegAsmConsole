@@ -29,6 +29,8 @@ namespace ESRIRegAsmConsole
 				return ErrorCode(12);
 			}
 
+			string pathToRegAsmExecutable = WrapFilePathArgumentForCommandLine(pathToRegAsm);
+
 			string registerUnregisterParam = arguments.Register ? "" : "/u";
 
 			var result = new Result();
@@ -38,8 +40,8 @@ namespace ESRIRegAsmConsole
 			{
 				result.ArgumentsList.Add(new ConsoleAppLaunchArguments
 				{
-					ExecutableName = pathToRegAsm,
-					CommandLineArguments = $"{dll} {registerUnregisterParam} /p:{arguments.Product} /s /e"
+					ExecutableName = pathToRegAsmExecutable,
+					CommandLineArguments = $"{WrapFilePathArgumentForCommandLine(dll)} {registerUnregisterParam} /p:{arguments.Product} /s /e"
 				});
 			}
 
@@ -80,6 +82,19 @@ namespace ESRIRegAsmConsole
 
 			foreach (string pathToDll in Wildcards.Expand(pathPattern))
 				yield return Path.GetFullPath(pathToDll);
+		}
+
+		/// <summary>
+		/// If <paramref name="filePath"/> contains spaces the method wraps it with rabbit ears (")
+		/// as windows command line requires.
+		/// Otherwise returns <paramref name="filePath"/> unchanged.
+		/// </summary>
+		private static string WrapFilePathArgumentForCommandLine(string filePath)
+		{
+			if (!filePath.StartsWith("\"") && filePath.Contains(' '))
+				return $"\"{filePath}\"";
+
+			return filePath;
 		}
 
 		private static Result ErrorCode(int errorCode) => new() { ErrorCode = errorCode };
