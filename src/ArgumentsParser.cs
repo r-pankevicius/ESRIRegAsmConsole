@@ -93,7 +93,13 @@ namespace ESRIRegAsmConsole
 
 			result.Register = !unregister;
 
+			result.BasePath = (string)parsedArguments[nameof(Arguments.BasePath)];
+			result.Product = (Product)parsedArguments[nameof(Arguments.Product)];
+			result.ExportToRegistryFile = (string)parsedArguments[nameof(Arguments.ExportToRegistryFile)];
+			result.CategoryMappingFile = (string)parsedArguments[nameof(Arguments.CategoryMappingFile)];
+			result.KeepWorkingFilesDirectory = (string)parsedArguments[nameof(Arguments.KeepWorkingFilesDirectory)];
 			result.ContinueOnFail = (bool)parsedArguments[nameof(Arguments.ContinueOnFail)];
+			result.VerboseOutput = (bool)parsedArguments[nameof(Arguments.VerboseOutput)];
 
 			return result;
 		}

@@ -25,6 +25,11 @@
 		public bool IsDll { get; set; }
 
 		/// <summary>
+		/// Folder to resolve relative paths from.
+		/// </summary>
+		public string BasePath { get; set; }
+
+		/// <summary>
 		/// True = register, false = unregister.
 		/// </summary>
 		public bool Register { get; set; } = true;
@@ -50,18 +55,13 @@
 		public string KeepWorkingFilesDirectory { get; set; }
 
 		/// <summary>
-		/// If the program output should be verbose.
-		/// </summary>
-		public bool VerboseOutput { get; set; } = false;
-
-		/// <summary>
-		/// Folder to resolve relative paths from.
-		/// </summary>
-		public string BasePath { get; set; }
-
-		/// <summary>
 		/// Continue execution even if registration of some file fails.
 		/// </summary>
 		public bool ContinueOnFail { get; set; } = false;
+
+		/// <summary>
+		/// If the program output should be verbose.
+		/// </summary>
+		public bool VerboseOutput { get; set; } = false;
 	}
 }
