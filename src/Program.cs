@@ -86,12 +86,12 @@ namespace ESRIRegAsmConsole
 				}
 			}
 
-			PrintSummaryIfNeeded(commandLinesRan);
+			PrintSummaryIfNeeded(commandLinesRan, arguments.VerboseOutput);
 
 			return errorsOccured ? ErrorCode(100) : 0;
 		}
 
-		private static void PrintSummaryIfNeeded(Dictionary<string, bool> commandLinesRan)
+		private static void PrintSummaryIfNeeded(Dictionary<string, bool> commandLinesRan, bool verbose)
 		{
 			if (commandLinesRan.Count < PrintSummaryThreshold)
 				return;
@@ -102,7 +102,7 @@ namespace ESRIRegAsmConsole
 			Logger.Info(
 				$"Execution summary:\n\tTotal: {commandLinesRan.Count}\n\tSucceeded: {succeededCommands.Length}\n\tFailed: {failedCommands.Length}\n");
 
-			if (succeededCommands.Length > 0)
+			if (verbose && succeededCommands.Length > 0)
 			{
 				Logger.Info($"=== Succeeded ({succeededCommands.Length}): ===");
 				foreach (string command in succeededCommands)
