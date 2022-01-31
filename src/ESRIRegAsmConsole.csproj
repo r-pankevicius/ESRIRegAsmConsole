@@ -34,9 +34,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ConsoleAppLauncher, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Bin\Packages\ConsoleAppLauncher.2.0.0\lib\net45\ConsoleAppLauncher.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -58,16 +55,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Embedded\Usage.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\lib\command-line-parser\source\System.CommandLine.Parser.csproj">
+    <ProjectReference Include="..\command-line-parser\source\System.CommandLine.Parser.csproj">
       <Project>{60196f1e-2112-4984-b7e6-e6a60ea4aba0}</Project>
       <Name>System.CommandLine.Parser</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="ConsoleAppLauncher">
+      <Version>2.0.0</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

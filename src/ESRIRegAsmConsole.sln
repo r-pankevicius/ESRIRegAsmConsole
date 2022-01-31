@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESRIRegAsmConsole", "ESRIRe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{F2BE50DD-C8E0-477E-B4C7-F55710825BDC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.Parser", "..\lib\command-line-parser\source\System.CommandLine.Parser.csproj", "{60196F1E-2112-4984-B7E6-E6A60EA4ABA0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.Parser", "..\command-line-parser\source\System.CommandLine.Parser.csproj", "{60196F1E-2112-4984-B7E6-E6A60EA4ABA0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.Parser.Tests", "..\lib\command-line-parser\test\System.CommandLine.Parser.Tests.csproj", "{86E3999B-3B85-4F48-A193-71B8D25ED7FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.CommandLine.Parser.Tests", "..\command-line-parser\test\System.CommandLine.Parser.Tests.csproj", "{86E3999B-3B85-4F48-A193-71B8D25ED7FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
