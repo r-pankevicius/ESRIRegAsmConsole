@@ -16,3 +16,10 @@ The one you can use in a batch file without pressing OK button multiple times in
 continue with other tasks if everything is OK.
 
 These things were too difficult to understand for hard working ESRI programmers because they were too busy pressing OK buttons.
+
+## Cloning
+
+The project uses [git submodules](https://github.blog/2016-02-01-working-with-submodules/), so clone recursively:
+```bash
+git clone --recursive https://github.com/r-pankevicius/ESRIRegAsmConsole.git
+```
