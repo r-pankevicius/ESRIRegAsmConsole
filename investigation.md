@@ -55,4 +55,6 @@ Operation Failed
 Press Enter to continue...
 ```
 
-
+## Arguments parser
+  
+  Check out https://github.com/natemcmaster/CommandLineUtils/blob/main/test/CommandLineUtils.Tests/ArgumentAttributeTests.cs. It seems it supports positional arguments.
